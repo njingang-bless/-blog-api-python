@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Blog API - Interface Élégante</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            margin-bottom: 20px;
+        }
+
+        .articles-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .article-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 5px solid #667eea;
+            animation: slideIn 0.5s ease;
+        }
+
+        .article-card h3 {
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .article-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .tag {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-right: 8px;
+            margin-bottom: 5px;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #888;
+            font-size: 1.2em;
+            padding: 40px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.2em;
+            padding: 20px;
+        }
+
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success {
+            background: #51cf66;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Mon Blog API ✨</h1>
+
+        <div id="error" class="error"></div>
+        <div id="success" class="success"></div>
+
+        <!-- Formulaire de création -->
+        <div class="card">
+            <h2>📝 Créer un nouvel article</h2>
+            
+            <div class="form-group">
+                <label>Titre *</label>
+                <input type="text" id="title" placeholder="Entrez le titre de l'article" required>
+            </div>
+
+            <div class="form-group">
+                <label>Contenu *</label>
+                <textarea id="content" placeholder="Écrivez votre article ici..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Auteur *</label>
+                <input type="text" id="author" placeholder="Votre nom" required>
+            </div>
+
+            <div class="form-group">
+                <label>Catégorie *</label>
+                <input type="text" id="category" placeholder="Ex: Technologie, Voyage, Cuisine..." required>
+            </div>
+
+            <div class="form-group">
+                <label>Tags (séparés par des virgules)</label>
+                <input type="text" id="tags" placeholder="Ex: python, fastapi, blog" value="python,api">
+            </div>
+
+            <button onclick="createArticle()">➕ Créer l'article</button>
+        </div>
+
+        <!-- Liste des articles -->
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>📚 Tous les articles</h2>
+                <button class="refresh-btn" onclick="loadArticles()">🔄 Rafraîchir</button>
+            </div>
+
+            <div id="loading" class="loading">Chargement des articles...</div>
+            <div id="articles" class="articles-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_URL = 'http://localhost:8000';
+
+        // Fonction pour afficher les erreurs
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = message;
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Fonction pour afficher les succès
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success');
+            successDiv.style.display = 'block';
+            successDiv.textContent = message;
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Fonction pour charger les articles
+        async function loadArticles() {
+            const loading = document.getElementById('loading');
+            const articlesDiv = document.getElementById('articles');
+            
+            loading.style.display = 'block';
+            articlesDiv.innerHTML = '';
+
+            try {
+                const response = await fetch(API_URL + '/api/articles');
+                
+                if (!response.ok) {
+                    throw new Error('Erreur de chargement');
+                }
+
+                const articles = await response.json();
+                
+                if (articles.length === 0) {
+                    articlesDiv.innerHTML = '<div class="empty-message">📭 Aucun article pour le moment</div>';
+                } else {
+                    let html = '';
+                    for (let article of articles) {
+                        html += `
+                            <div class="article-card">
+                                <h3>${escapeHtml(article.title)}</h3>
+                                <p>${escapeHtml(article.content)}</p>
+                                <div class="article-meta">
+                                    <span>✍️ ${escapeHtml(article.author)}</span>
+                                    <span>📂 ${escapeHtml(article.category)}</span>
+                                    <span>📅 ${article.date}</span>
+                                </div>
+                                <div>
+                                    ${article.tags.map(tag => <span class="tag">#${escapeHtml(tag)}</span>).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    articlesDiv.innerHTML = html;
+                }
+            } catch (error) {
+                showError('Erreur de chargement: ' + error.message);
+                articlesDiv.innerHTML = '<div class="empty-message">❌ Erreur de chargement</div>';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Fonction pour créer un article
+        async function createArticle() {
+            // Récupérer les valeurs
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+            const author = document.getElementById('author').value.trim();
+            const category = document.getElementById('category').value.trim();
+            const tagsInput = document.getElementById('tags').value.trim();
+
+            // Validation
+            if (!title || !content || !author || !category) {
+                showError('Veuillez remplir tous les champs obligatoires');
+                return;
+            }
+
+            // Préparer les tags
+            const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : ['python'];
+
+            // Préparer l'article
+            const article = {
+                title: title,
+                content: content,
+                author: author,
+                category: category,
+                tags: tags
+            };
+
+            try {
+                const response = await fetch(API_URL + '/api/articles', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(article)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erreur de création');
+                }
+
+                const result = await response.json();
+                
+                // Succès
+                showSuccess('✅ Article créé avec succès! ID: ' + result.id);
+                
+                // Vider le formulaire
+                document.getElementById('title').value = '';
+                document.getElementById('content').value = '';
+                document.getElementById('author').value = '';
+                document.getElementById('category').value = '';
+                
+                // Recharger les articles
+                await loadArticles();
+
+            } catch (error) {
+                showError('Erreur: ' + error.message);
+            }
+        }
+
+        // Fonction pour échapper le HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Charger les articles au démarrage
+        document.addEventListener('DOMContentLoaded', loadArticles);
+    </script>
+</body>
+</html>
